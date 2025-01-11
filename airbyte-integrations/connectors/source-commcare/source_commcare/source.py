@@ -312,14 +312,18 @@ class SourceCommcare(AbstractSource):
             args = {
                 "authenticator": auth,
             }
-            Application(
-                **{
-                    **args,
-                    "app_id": config["app_id"],
-                    "form_fields_to_exclude": config["form_fields_to_exclude"],
-                    "project_space": config["project_space"],
-                }
-            ).check_availability(logger=logger)
+            form_fields_to_exclude = config.get("form_fields_to_exclude", [])
+            next(
+                Application(
+                    **{
+                        **args,
+                        "app_id": config["app_id"],
+                        "form_fields_to_exclude": form_fields_to_exclude,
+                        "project_space": config["project_space"],
+                    }
+                )
+                .read_records(SyncMode.full_refresh)
+            )
             return True, None
         except Exception as error:
             return False, " Invalid apikey, project_space or app_id : " + str(error)
@@ -340,11 +344,12 @@ class SourceCommcare(AbstractSource):
         args = {
             "authenticator": auth,
         }
+        form_fields_to_exclude = config.get("form_fields_to_exclude", [])
         appdata = Application(
             **{
                 **args,
                 "app_id": config["app_id"],
-                "form_fields_to_exclude": config["form_fields_to_exclude"],
+                "form_fields_to_exclude": form_fields_to_exclude,
                 "project_space": config["project_space"],
             }
         ).read_records(sync_mode=SyncMode.full_refresh)
@@ -354,10 +359,11 @@ class SourceCommcare(AbstractSource):
         return streams
 
     def generate_streams(self, args, config, appdata):
+        form_fields_to_exclude = config.get("form_fields_to_exclude", [])
         form_args = {
             "app_id": config["app_id"],
             "start_date": config["start_date"],
-            "form_fields_to_exclude": config["form_fields_to_exclude"],
+            "form_fields_to_exclude": form_fields_to_exclude,
             "project_space": config["project_space"],
             **args,
         }
@@ -394,7 +400,7 @@ class SourceCommcare(AbstractSource):
             start_date=config["start_date"],
             schema=self.base_schema(),
             project_space=config["project_space"],
-            form_fields_to_exclude=config["form_fields_to_exclude"],
+            form_fields_to_exclude=form_fields_to_exclude,
             **args,
         )
 

@@ -10,15 +10,20 @@ from source_commcare.source import SourceCommcare
 
 @pytest.fixture(name="config")
 def config_fixture():
-    return {"api_key": "apikey", "app_id": "appid", "project_space": "project_space", "start_date": "2022-01-01T00:00:00Z"}
+    return {"api_key": "apikey", "app_id": "appid", "project_space": "project_space", "start_date": "2022-01-01T00:00:00Z",'form_fields_to_exclude':[]}
 
 
-@patch("source_commcare.source.Application.check_availability", return_value="true")
-def test_check_connection_ok(mocker, config):
+@patch("source_commcare.source.Application.read_records")
+def test_check_connection_success(mock_read_records,config):
+    mock_read_records.return_value = iter(["dummy_record"])
+
     source = SourceCommcare()
     logger_mock = Mock()
-    assert source.check_connection(logger_mock, config=config) == (True, None)
 
+    result = source.check_connection(logger_mock, config=config)
+
+    assert result == (True, None)
+    mock_read_records.assert_called_once()
 
 def test_check_connection_fail(mocker, config):
     source = SourceCommcare()
