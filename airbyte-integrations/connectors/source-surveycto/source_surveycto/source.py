@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -10,7 +10,7 @@ from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 import requests
 from airbyte_cdk.models import SyncMode
 from airbyte_cdk.sources import AbstractSource
-from airbyte_cdk.sources.streams import IncrementalMixin, Stream
+from airbyte_cdk.sources.streams import CheckpointMixin, Stream
 from airbyte_cdk.sources.streams.http import HttpStream
 from airbyte_cdk.sources.utils.transform import TransformConfig, TypeTransformer
 
@@ -64,7 +64,7 @@ class SurveyStream(HttpStream, ABC):
         return {}
 
 
-class SurveyctoStream(SurveyStream, IncrementalMixin):
+class SurveyctoStream(SurveyStream, CheckpointMixin):
     primary_key = "KEY"
     cursor_field = "SubmissionDate"
     _cursor_value = None
@@ -83,7 +83,7 @@ class SurveyctoStream(SurveyStream, IncrementalMixin):
 
     @property
     def name(self) -> str:
-        return self.form_id
+        return getattr(self, 'form_id', 'Surveyctostream')
 
     def next_page_token(self, response: requests.Response) -> Optional[Mapping[str, Any]]:
         return None
