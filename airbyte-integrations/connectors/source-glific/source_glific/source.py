@@ -11,7 +11,7 @@ import requests
 
 from airbyte_cdk.models import SyncMode
 from airbyte_cdk.sources import AbstractSource
-from airbyte_cdk.sources.streams import Stream, IncrementalMixin
+from airbyte_cdk.sources.streams import Stream, CheckpointMixin
 from airbyte_cdk.sources.streams.http import HttpStream
 from airbyte_cdk.sources.streams.core import StreamData
 
@@ -81,7 +81,7 @@ class GlificStream(HttpStream, ABC):
 
     @property
     def name(self) -> str:
-        return self.stream_name
+        return getattr(self, 'stream_name', 'glific_stream')
 
     @property
     def http_method(self) -> str:
@@ -179,7 +179,7 @@ class GlificStream(HttpStream, ABC):
             yield retval
 
 
-class IncrementalGlificStream(GlificStream, IncrementalMixin, ABC):
+class IncrementalGlificStream(GlificStream, CheckpointMixin, ABC):
     state_checkpoint_interval = None
 
     @property
