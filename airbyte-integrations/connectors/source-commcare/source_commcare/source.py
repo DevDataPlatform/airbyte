@@ -258,7 +258,7 @@ class Form(IncrementalStream):
 
     @property
     def name(self):
-        return self.streamname
+        return getattr(self, 'streamname', 'form')
 
     def get_json_schema(self):
         return self.schema
