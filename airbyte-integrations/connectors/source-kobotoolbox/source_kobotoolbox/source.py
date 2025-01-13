@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -76,7 +76,7 @@ class KoboToolStream(HttpStream, IncrementalMixin, ABC):
     def name(self) -> str:
         """Return the english substring as stream name. If not found return form uid"""
         regex = re.compile("[^a-zA-Z ]")
-        s = regex.sub("", self.stream_name)
+        s = regex.sub("", getattr(self, 'stream_name', 'kobotoolstream'))
         s = s.strip()
         return s if len(s) > 0 else self.form_id
 
